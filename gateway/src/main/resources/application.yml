@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true # This is to make the service name case-insensitive
+server:
+    port: ${PORT:8765}
+eureka:
+  client:
+    service-url:
+      #if no EUREKA_URL is set, default to http://localhost:8761/eureka
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}

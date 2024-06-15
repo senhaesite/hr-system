@@ -1,0 +1,61 @@
+version: "3.4"
+
+services:
+
+  #eureka-server needs to go first, as it is the service that will be used by the other services
+  eureka-server:
+    image: senhaesite/eureka-server:1.0.0
+    ports:
+      - "8761:8761"
+    #expose port 8761 to the other services so that those services will be able to make requests to this server
+    expose:
+      - "8761"
+    networks:
+      - hr-system
+
+  gateway:
+    image: senhaesite/gateway:1.0.0
+    ports:
+      - "8765:8765"
+    expose:
+      - "8765"
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_URL=http://eureka-server:8761/eureka
+    networks:
+      - hr-system
+  
+  user-api:
+    image: senhaesite/user-api:1.0.0
+    ports:
+      - "8003:8003"
+    #depends on "eureka-server" starting to be able to start too
+    depends_on:
+      - eureka-server
+      - gateway
+    environment:
+      - EUREKA_URL=http://eureka-server:8761/eureka
+      #The PORT definition is optional. As we have set a PORT variable in application.yml, we have the choice to include the port.
+      - PORT=8004
+    networks:
+      - hr-system
+
+  payroll-api:
+    image: senhaesite/payroll-api:1.0.0
+    ports:
+      - "8100:8100"
+    depends_on:
+      - eureka-server
+      - gateway
+      #depends on user-api to request user information
+      - user-api
+    environment:
+      - EUREKA_URL=http://eureka-server:8761/eureka
+      - PORT=8100
+    networks:
+      - hr-system
+
+networks:
+  hr-system:
+    driver: bridge

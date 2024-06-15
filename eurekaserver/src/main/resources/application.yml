@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: eurekaserver
+server:
+  port: ${PORT:8761}
+eureka:
+  client:
+    register-with-eureka: false # Don't register itself in the Eureka server, to avoid error on startup
+    fetch-registry: false
